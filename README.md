@@ -74,4 +74,5 @@ The following technologies were used in this project:
 - Web Storage API (localStorage) — (Used to store user settings, profile data, and addresses in the browser)
 
 Summary
+
 Delivra is a simple dashboard system that helps manage parcels, customers, and settings. It is a frontend project used for learning how web applications work.
