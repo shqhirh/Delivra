@@ -49,7 +49,7 @@ B. Features Included
 C. Instructions to Test Login
 - Open the file index.html in a web browser.
 - Enter the following credentials:
-- Username: admin
+- Username: admin@delivra.com
 - Password: admin123
 - Click the login button.
 - If credentials are correct, the system will redirect to the dashboard page.
