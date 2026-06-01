@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivra — Customers</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DELIVRA — SHARED BASE STYLES (from dashboard)
+   ============================================================ */
+:root {
+  --red:      #e6352b;
+  --red-dk:   #b82a22;
+  --blue:     #0f2027;
+  --mid:      #5396AC;
+  --bg:       #f0f2f5;
+  --card:     #ffffff;
+  --text:     #1a1a2e;
+  --muted:    #7a8499;
+  --border:   #e4e8ef;
+  --sidebar:  #0f2027;
+  --sidebar-w: 240px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR (enhanced with active state and icons) ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--sidebar);
+  display: flex;
+  flex-direction: column;
+  padding: 30px 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+}
+
+.sidebar-brand {
+  padding: 0 24px 30px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: white;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-brand span { color: var(--red); }
+
+.nav-section {
+  padding: 20px 14px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  color: rgba(255,255,255,0.55);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+  color: white;
+  background: rgba(255,255,255,0.06);
+}
+
+.nav-item.active {
+  color: white;
+  background: rgba(230,53,43,0.15);
+  border-left-color: var(--red);
+}
+
+.nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  background: rgba(230,53,43,0.15);
+  border: 1px solid rgba(230,53,43,0.3);
+  border-radius: 10px;
+  color: #ff6b63;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.logout-btn:hover { background: rgba(230,53,43,0.3); }
+
+/* ── MAIN LAYOUT ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOPBAR (same as dashboard) ── */
+.topbar {
+  background: var(--card);
+  padding: 18px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-left h2 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.topbar-left p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.badge-notif {
+  position: relative;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.badge-notif::after {
+  content: "3";
+  position: absolute;
+  top: -4px; right: -6px;
+  background: var(--red);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+}
+
+.avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--red), var(--mid));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ── DROPDOWNS (matching dashboard) ── */
+.dropdown-wrap { position: relative; }
+
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 0; top: calc(100% + 10px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  min-width: 220px;
+  z-index: 200;
+  overflow: hidden;
+}
+
+.dropdown.open { display: block; }
+
+.dropdown-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+
+.dropdown-item:last-child { border-bottom: none; }
+.dropdown-item:hover { background: #f7f9fc; }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); margin-top: 4px; flex-shrink: 0; }
+.notif-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.profile-info {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.avatar-sm {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--red), var(--mid));
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 12px; flex-shrink: 0;
+}
+
+.p-name  { font-size: 13px; font-weight: 600; }
+.p-email { font-size: 11px; color: var(--muted); }
+
+.dropdown-action {
+  padding: 11px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+
+.dropdown-action:last-child { border-bottom: none; }
+.dropdown-action:hover { background: #f7f9fc; }
+.dropdown-action.danger { color: var(--red); }
+
+/* ── HAMBURGER & OVERLAY (mobile) ── */
+.hamburger { display: none; font-size: 22px; cursor: pointer; padding: 4px 8px; }
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 99;
+}
+.sidebar-overlay.open { display: block; }
+
+/* ── CUSTOMERS SPECIFIC STYLES ── */
+.content { padding: 32px 36px; flex: 1; }
+
+.search-bar { margin-bottom: 20px; }
+
+.search-bar input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+  background: var(--card);
+  color: var(--text);
+  transition: 0.2s;
+}
+
+.search-bar input:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(230,53,43,0.08);
+}
+
+.customer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.customer-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.customer-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.05);
+}
+
+.customer-top { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+
+.avatar-card {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--red), var(--mid));
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 14px; flex-shrink: 0;
+}
+
+.name  { font-size: 16px; font-weight: 700; }
+.email { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.info  { font-size: 13px; line-height: 1.6; margin-top: 12px; }
+.info span { color: var(--muted); font-weight: 500; }
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.stats strong { color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; }
+
+.hidden { display: none !important; }
+
+/* ── FOOTER ── */
+.footer {
+  padding: 20px 36px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* ── RESPONSIVE (aligned with dashboard) ── */
+@media (max-width: 1024px) {
+  .customer-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .content { padding: 20px; }
+  .customer-grid { grid-template-columns: 1fr; }
+  .hamburger { display: block; }
+}
+
+/* ── DARK MODE (preserved from dashboard) ── */
+body.dark {
+  --bg:     #0f1115;
+  --card:   #1a1d24;
+  --text:   #ffffff;
+  --muted:  #a9b0c0;
+  --border: #2a2f3a;
+}
+</style>
+</head>
+
+<body>
+
+<!-- ── SIDEBAR (FULL NAVIGATION from dashboard, active customers) ── -->
+<aside class="sidebar">
+  <div class="sidebar-brand">DELIV<span>RA</span></div>
+
+  <div class="nav-section">Main</div>
+  <a class="nav-item" href="dashboard.html">
+    <span class="icon">🏠︎</span> Dashboard
+  </a>
+  <a class="nav-item" href="parcels.html">
+    <span class="icon">⛟</span> Parcels Tracking
+  </a>
+  <a class="nav-item active" href="customers.html">
+    <span class="icon">👥</span> Customers
+  </a>
+
+  <div class="nav-section">Account</div>
+  <a class="nav-item" href="settings.html">⚙️ Settings</a>
+
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">⏻ &nbsp;Logout</button>
+  </div>
+</aside>
+
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="main">
+
+  <!-- TOPBAR (fully consistent with dashboard) -->
+  <div class="topbar">
+    <div class="topbar-left" style="display:flex;align-items:center;gap:12px;">
+      <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+      <div>
+        <h2>Customers</h2>
+        <p id="dateStr">Loading...</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="dropdown-wrap">
+        <div class="badge-notif" onclick="toggleDropdown('notifDrop')">&#128276;</div>
+        <div class="dropdown" id="notifDrop">
+          <div class="dropdown-header">Notifications</div>
+          <div class="dropdown-item">
+            <div class="notif-dot"></div>
+            <div><div>Parcel DVR-00421 delivered</div><div class="notif-time">2 mins ago</div></div>
+          </div>
+          <div class="dropdown-item">
+            <div class="notif-dot"></div>
+            <div><div>Rider #07 is out for delivery</div><div class="notif-time">15 mins ago</div></div>
+          </div>
+          <div class="dropdown-item">
+            <div class="notif-dot"></div>
+            <div><div>DVR-00417 delivery failed</div><div class="notif-time">1 hour ago</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="dropdown-wrap">
+        <div class="avatar" onclick="toggleDropdown('avatarDrop')">AD</div>
+        <div class="dropdown" id="avatarDrop">
+          <div class="profile-info">
+            <div class="avatar-sm">AD</div>
+            <div><div class="p-name">Admin</div><div class="p-email">admin@delivra.com</div></div>
+          </div>
+          <div class="dropdown-action" onclick="window.location.href='settings.html'">⚙️ Settings</div>
+          <div class="dropdown-action danger" onclick="logout()">&#9211; Logout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMERS CONTENT (preserved original design) -->
+  <div class="content">
+
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Search by name, email, location, or order ID...">
+    </div>
+
+    <div class="customer-grid" id="customerGrid">
+
+      <div class="customer-card">
+        <div class="customer-top">
+          <div class="avatar-card">AF</div>
+          <div>
+            <div class="name">Ahmad Farid</div>
+            <div class="email">ahmad.farid@gmail.com</div>
+          </div>
+        </div>
+        <div class="info">
+          <span>Location:</span> Kuala Lumpur<br>
+          <span>Last Order:</span> DVR-00421
+        </div>
+        <div class="stats">
+          <div>Parcels<br><strong>5</strong></div>
+          <div>Delivered<br><strong>4</strong></div>
+        </div>
+      </div>
+
+      <div class="customer-card">
+        <div class="customer-top">
+          <div class="avatar-card">NA</div>
+          <div>
+            <div class="name">Nurul Ain</div>
+            <div class="email">nurul.ain@yahoo.com</div>
+          </div>
+        </div>
+        <div class="info">
+          <span>Location:</span> Penang<br>
+          <span>Last Order:</span> DVR-00420
+        </div>
+        <div class="stats">
+          <div>Parcels<br><strong>3</strong></div>
+          <div>Delivered<br><strong>2</strong></div>
+        </div>
+      </div>
+
+      <div class="customer-card">
+        <div class="customer-top">
+          <div class="avatar-card">LWK</div>
+          <div>
+            <div class="name">Lim Wei Kang</div>
+            <div class="email">limwk@gmail.com</div>
+          </div>
+        </div>
+        <div class="info">
+          <span>Location:</span> Johor Bahru<br>
+          <span>Last Order:</span> DVR-00419
+        </div>
+        <div class="stats">
+          <div>Parcels<br><strong>6</strong></div>
+          <div>Delivered<br><strong>6</strong></div>
+        </div>
+      </div>
+
+      <div class="customer-card">
+        <div class="customer-top">
+          <div class="avatar-card">SR</div>
+          <div>
+            <div class="name">Siti Rahimah</div>
+            <div class="email">siti.rahimah@gmail.com</div>
+          </div>
+        </div>
+        <div class="info">
+          <span>Location:</span> Ipoh<br>
+          <span>Last Order:</span> DVR-00418
+        </div>
+        <div class="stats">
+          <div>Parcels<br><strong>2</strong></div>
+          <div>Delivered<br><strong>1</strong></div>
+        </div>
+      </div>
+
+      <div class="customer-card">
+        <div class="customer-top">
+          <div class="avatar-card">RK</div>
+          <div>
+            <div class="name">Rajesh Kumar</div>
+            <div class="email">rajesh.k@gmail.com</div>
+          </div>
+        </div>
+        <div class="info">
+          <span>Location:</span> Seremban<br>
+          <span>Last Order:</span> DVR-00417
+        </div>
+        <div class="stats">
+          <div>Parcels<br><strong>4</strong></div>
+          <div>Delivered<br><strong>3</strong></div>
+        </div>
+      </div>
+
+      <div class="customer-card">
+        <div class="customer-top">
+          <div class="avatar-card">TML</div>
+          <div>
+            <div class="name">Tan Mei Ling</div>
+            <div class="email">tanmeiling@gmail.com</div>
+          </div>
+        </div>
+        <div class="info">
+          <span>Location:</span> Shah Alam<br>
+          <span>Last Order:</span> DVR-00416
+        </div>
+        <div class="stats">
+          <div>Parcels<br><strong>7</strong></div>
+          <div>Delivered<br><strong>7</strong></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    &copy; 2026 Delivra. All rights reserved.
+  </div>
+
+</div>
+
+<script>
+  /* ── Date in topbar (consistent with dashboard) ── */
+  const now = new Date();
+  document.getElementById("dateStr").textContent =
+    now.toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+
+  /* ── Dropdown toggle (global, same as dashboard) ── */
+  function toggleDropdown(id) {
+    document.querySelectorAll(".dropdown").forEach(d => {
+      if (d.id !== id) d.classList.remove("open");
+    });
+    document.getElementById(id).classList.toggle("open");
+  }
+
+  document.addEventListener("click", function(e) {
+    if (!e.target.closest(".dropdown-wrap")) {
+      document.querySelectorAll(".dropdown").forEach(d => d.classList.remove("open"));
+    }
+  });
+
+  /* ── Mobile sidebar toggle (from dashboard) ── */
+  function toggleSidebar() {
+    document.querySelector(".sidebar").classList.toggle("open");
+    document.getElementById("sidebarOverlay").classList.toggle("open");
+  }
+
+  /* ── Search / filter (original functionality) ── */
+  const searchInput = document.getElementById("searchInput");
+  const cards = document.querySelectorAll(".customer-card");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", function () {
+      const value = this.value.toLowerCase();
+      cards.forEach(card => {
+        card.classList.toggle("hidden", !card.innerText.toLowerCase().includes(value));
+      });
+    });
+  }
+
+  /* ── DARK MODE & GLOBAL SETTINGS (sync with dashboard) ── */
+  (function () {
+    if (localStorage.getItem("darkMode") === "true") document.body.classList.add("dark");
+  })();
+
+  function loadProfile() {
+    const name = localStorage.getItem("name") || "Admin";
+    const email = localStorage.getItem("email") || "admin@delivra.com";
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    if (nameInput) nameInput.value = name;
+    if (emailInput) emailInput.value = email;
+  }
+
+  function saveProfile() {
+    const name = document.getElementById("name");
+    const email = document.getElementById("email");
+    if (name) localStorage.setItem("name", name.value);
+    if (email) localStorage.setItem("email", email.value);
+    alert("Profile saved successfully!");
+  }
+
+  function toggleDarkMode() {
+    const isDark = document.body.classList.toggle("dark");
+    localStorage.setItem("darkMode", isDark);
+  }
+
+  function toggleSetting(el, key) {
+    el.classList.toggle("active");
+    localStorage.setItem(key, el.classList.contains("active"));
+  }
+
+  function restoreSwitch(id) {
+    if (localStorage.getItem(id) === "true") {
+      document.getElementById(id)?.classList.add("active");
+    }
+  }
+
+  function logout() {
+    if (confirm("Are you sure you want to logout?")) {
+      window.location.href = "index.html";
+    }
+  }
+
+  function resetAllSettings() {
+    localStorage.clear();
+    location.reload();
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    loadProfile();
+    restoreSwitch("emailNotif");
+    restoreSwitch("parcelNotif");
+    restoreSwitch("compact");
+    if (localStorage.getItem("darkMode") === "true") document.body.classList.add("dark");
+  });
+</script>
+
+</body>
+</html>

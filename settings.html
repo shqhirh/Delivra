@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Delivra — Settings | Address & Preferences</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DELIVRA — SHARED BASE STYLES (fully integrated)
+   ============================================================ */
+:root {
+  --red:      #e6352b;
+  --red-dk:   #b82a22;
+  --blue:     #0f2027;
+  --mid:      #5396AC;
+  --bg:       #f0f2f5;
+  --card:     #ffffff;
+  --text:     #1a1a2e;
+  --muted:    #7a8499;
+  --border:   #e4e8ef;
+  --sidebar:  #0f2027;
+  --sidebar-w: 240px;
+  --success:  #2b7e3a;
+  --warning:  #e68a2e;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* ── SIDEBAR (dashboard style) ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--sidebar);
+  display: flex;
+  flex-direction: column;
+  padding: 30px 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-brand {
+  padding: 0 24px 30px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: white;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-brand span { color: var(--red); }
+
+.nav-section {
+  padding: 20px 14px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  color: rgba(255,255,255,0.55);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+  color: white;
+  background: rgba(255,255,255,0.06);
+}
+
+.nav-item.active {
+  color: white;
+  background: rgba(230,53,43,0.15);
+  border-left-color: var(--red);
+}
+
+.nav-item .icon { font-size: 18px; width: 22px; text-align: center; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 10px;
+  background: rgba(230,53,43,0.15);
+  border: 1px solid rgba(230,53,43,0.3);
+  border-radius: 10px;
+  color: #ff6b63;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.logout-btn:hover { background: rgba(230,53,43,0.3); }
+
+/* ── MAIN ── */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOPBAR (consistent) ── */
+.topbar {
+  background: var(--card);
+  padding: 18px 36px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.topbar-left h2 { font-size: 20px; font-weight: 700; }
+.topbar-left p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+.hamburger { display: none; font-size: 22px; cursor: pointer; padding: 4px 8px; }
+
+.sidebar-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 99;
+}
+
+.sidebar-overlay.open { display: block; }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.badge-notif {
+  position: relative;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.badge-notif::after {
+  content: "3";
+  position: absolute;
+  top: -4px; right: -6px;
+  background: var(--red);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Mono', monospace;
+}
+
+.avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--red), var(--mid));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dropdown-wrap { position: relative; }
+
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 0; top: calc(100% + 10px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  min-width: 220px;
+  z-index: 200;
+  overflow: hidden;
+}
+
+.dropdown.open { display: block; }
+
+.dropdown-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+
+.dropdown-item:hover { background: #f7f9fc; }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); margin-top: 4px; flex-shrink: 0; }
+.notif-time { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.profile-info {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.avatar-sm {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--red), var(--mid));
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: 700; font-size: 12px; flex-shrink: 0;
+}
+
+.p-name  { font-size: 13px; font-weight: 600; }
+.p-email { font-size: 11px; color: var(--muted); }
+
+.dropdown-action {
+  padding: 11px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  transition: background 0.15s;
+  border-bottom: 1px solid var(--border);
+}
+
+.dropdown-action:last-child { border-bottom: none; }
+.dropdown-action:hover { background: #f7f9fc; }
+.dropdown-action.danger { color: var(--red); }
+
+/* ── SETTINGS CONTENT enhanced ── */
+.content {
+  padding: 32px 36px;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  align-content: start;
+}
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 24px;
+  transition: box-shadow 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.03);
+}
+
+.card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.2px;
+}
+
+.card h3 i {
+  font-size: 20px;
+  font-weight: 400;
+}
+
+.full { grid-column: span 2; }
+
+/* Profile specific */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.avatar-lg {
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--red), var(--mid));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.profile-details .name  { font-weight: 700; font-size: 15px; }
+.profile-details .email { color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+/* Form elements */
+label {
+  display: block;
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.input, .textarea-input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.textarea-input {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.input:focus, .textarea-input:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(230,53,43,0.08);
+}
+
+/* Address item styling */
+.address-list {
+  margin: 12px 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.address-item {
+  background: var(--bg);
+  border-radius: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  transition: all 0.2s;
+  position: relative;
+}
+
+.address-item.default-highlight {
+  background: rgba(230,53,43,0.05);
+  border-left: 3px solid var(--red);
+}
+
+.address-line {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.address-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.default-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--red);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.4px;
+}
+
+.address-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.address-actions span {
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.1s;
+  color: var(--muted);
+}
+
+.address-actions .edit-addr { color: var(--mid); }
+.address-actions .delete-addr { color: var(--red); }
+.address-actions .set-default { color: var(--success); }
+
+.address-actions span:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+.add-address-btn {
+  margin-top: 16px;
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  padding: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mid);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-address-btn:hover {
+  background: var(--bg);
+  border-color: var(--mid);
+}
+
+/* Toggle switch */
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.switch {
+  width: 42px; height: 22px;
+  border-radius: 50px;
+  background: #ccc;
+  cursor: pointer;
+  position: relative;
+  transition: 0.3s;
+  flex-shrink: 0;
+}
+
+.switch::before {
+  content: "";
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+  top: 2px; left: 2px;
+  transition: 0.3s;
+}
+
+.switch.active { background: var(--red); }
+.switch.active::before { left: 22px; }
+
+/* Buttons */
+.btn {
+  border: none;
+  cursor: pointer;
+  margin-top: 16px;
+  margin-right: 10px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.btn-primary { background: var(--red); color: white; }
+.btn-primary:hover { background: var(--red-dk); transform: translateY(-1px); }
+
+.btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--border); }
+
+/* Footer */
+.footer {
+  padding: 20px 36px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .content { grid-template-columns: 1fr; }
+  .full { grid-column: span 1; }
+}
+
+@media (max-width: 768px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main    { margin-left: 0; }
+  .content { padding: 20px; gap: 18px; }
+  .hamburger { display: block; }
+}
+
+/* Dark mode overrides */
+body.dark {
+  --bg:     #0f1115;
+  --card:   #1a1d24;
+  --text:   #ffffff;
+  --muted:  #a9b0c0;
+  --border: #2a2f3a;
+}
+
+body.dark .input, body.dark .textarea-input {
+  background: var(--card);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+body.dark .address-item {
+  background: #13161c;
+}
+
+body.dark .btn-secondary {
+  background: var(--card);
+  color: var(--text);
+  border-color: var(--border);
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-brand">DELIV<span>RA</span></div>
+  <div class="nav-section">Main</div>
+  <a class="nav-item" href="dashboard.html"><span class="icon">🏠︎</span> Dashboard</a>
+  <a class="nav-item" href="parcels.html"><span class="icon">⛟</span> Parcels Tracking</a>
+  <a class="nav-item" href="customers.html"><span class="icon">👥</span> Customers</a>
+  <div class="nav-section">Account</div>
+  <a class="nav-item active" href="settings.html"><span class="icon">⚙️</span> Settings</a>
+  <div class="sidebar-footer">
+    <button class="logout-btn" onclick="logout()">⏻ &nbsp;Logout</button>
+  </div>
+</aside>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="hamburger" onclick="toggleSidebar()">&#9776;</span>
+      <div>
+        <h2>Settings</h2>
+        <p id="dateStr">Loading...</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="dropdown-wrap">
+        <div class="badge-notif" onclick="toggleDropdown('notifDrop')">&#128276;</div>
+        <div class="dropdown" id="notifDrop">
+          <div class="dropdown-header">Notifications</div>
+          <div class="dropdown-item"><div class="notif-dot"></div><div><div>Parcel DVR-00421 delivered</div><div class="notif-time">2 mins ago</div></div></div>
+          <div class="dropdown-item"><div class="notif-dot"></div><div><div>Rider #07 is out for delivery</div><div class="notif-time">15 mins ago</div></div></div>
+          <div class="dropdown-item"><div class="notif-dot"></div><div><div>DVR-00417 delivery failed</div><div class="notif-time">1 hour ago</div></div></div>
+        </div>
+      </div>
+      <div class="dropdown-wrap">
+        <div class="avatar" onclick="toggleDropdown('avatarDrop')">AD</div>
+        <div class="dropdown" id="avatarDrop">
+          <div class="profile-info"><div class="avatar-sm">AD</div><div><div class="p-name">Admin</div><div class="p-email">admin@delivra.com</div></div></div>
+          <div class="dropdown-action" onclick="window.location.href='settings.html'">⚙️ Settings</div>
+          <div class="dropdown-action danger" onclick="logout()">&#9211; Logout</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Profile Card -->
+    <div class="card">
+      <h3><span>👤</span> PROFILE</h3>
+      <div class="profile">
+        <div class="avatar-lg" id="profileAvatar">AD</div>
+        <div class="profile-details">
+          <div class="name" id="profileNameDisplay">Admin</div>
+          <div class="email" id="profileEmailDisplay">admin@delivra.com</div>
+        </div>
+      </div>
+      <label>Full Name</label>
+      <input type="text" class="input" id="name" placeholder="Your name">
+      <label>Email Address</label>
+      <input type="email" class="input" id="email" placeholder="Your email">
+      <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+    </div>
+
+    <!-- Address Management Card (new & improved) -->
+    <div class="card">
+      <h3><span>📍</span> SAVED ADDRESSES</h3>
+      <div id="addressListContainer" class="address-list">
+        <!-- dynamic address items injected -->
+      </div>
+      <button class="add-address-btn" id="showAddAddressBtn">➕ Add new address</button>
+      <!-- inline form for adding/editing (hidden by default) -->
+      <div id="addressForm" style="display: none; margin-top: 18px;">
+        <label>Address Line</label>
+        <textarea id="addressLineInput" class="textarea-input" placeholder="Street, building, apartment..."></textarea>
+        <label>City / Postal Code (optional)</label>
+        <input type="text" id="addressMetaInput" class="input" placeholder="e.g., New York, 10001">
+        <div style="display: flex; gap: 10px; margin-top: 16px;">
+          <button class="btn btn-primary" id="saveAddressBtn">Save</button>
+          <button class="btn btn-secondary" id="cancelAddressBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Card -->
+    <div class="card">
+      <h3><span>🔔</span> NOTIFICATIONS</h3>
+      <div class="toggle"><span>Email Notifications</span><div class="switch" id="emailNotif"></div></div>
+      <div class="toggle"><span>Parcel Updates</span><div class="switch" id="parcelNotif"></div></div>
+    </div>
+
+    <!-- Appearance Card -->
+    <div class="card">
+      <h3><span>🎨</span> APPEARANCE</h3>
+      <div class="toggle"><span>Dark Mode</span><div class="switch" id="darkMode"></div></div>
+    </div>
+
+    <!-- QUICK ACTIONS CARD (Only Logout & Reset Preferences) — exactly as requested -->
+    <div class="card full">
+      <h3><span> QUICK ACTIONS</h3>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px;">
+        <!-- Reset Preferences button only (logout is already present in sidebar and avatar, but we keep explicit reset pref + dedicated logout for clarity) -->
+        <button class="btn btn-secondary" onclick="resetPreferencesOnly()">Reset Preferences</button>
+        <button class="btn btn-secondary" onclick="logout()">Logout</button>
+      </div>
+      <p style="font-size: 12px; color: var(--muted); margin-top: 14px;">Reset preferences clears dark mode, notification toggles, and settings. Your profile info and saved addresses remain untouched.</p>
+    </div>
+  </div>
+
+  <div class="footer">&copy; 2026 Delivra. All rights reserved.</div>
+</div>
+
+<script>
+  /* ---------- Date & dropdowns ---------- */
+  const now = new Date();
+  const dateStrElem = document.getElementById("dateStr");
+  if (dateStrElem) dateStrElem.textContent = now.toLocaleDateString("en-GB", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+
+  window.toggleDropdown = function(id) {
+    document.querySelectorAll(".dropdown").forEach(d => { if (d.id !== id) d.classList.remove("open"); });
+    document.getElementById(id).classList.toggle("open");
+  };
+  document.addEventListener("click", (e) => { if (!e.target.closest(".dropdown-wrap")) document.querySelectorAll(".dropdown").forEach(d => d.classList.remove("open")); });
+  window.toggleSidebar = function() {
+    document.querySelector(".sidebar").classList.toggle("open");
+    document.getElementById("sidebarOverlay").classList.toggle("open");
+  };
+
+  /* ---------- Address Data Model ---------- */
+  let addresses = []; // each: { id, line, meta, isDefault }
+  let editModeId = null;
+
+  function loadAddressesFromStorage() {
+    const stored = localStorage.getItem("delivra_addresses");
+    if (stored) {
+      addresses = JSON.parse(stored);
+    } else {
+      // default demo addresses (improved)
+      addresses = [
+        { id: "addr1", line: "123 Courier Ave, Suite 200", meta: "Chicago, IL 60607", isDefault: true },
+        { id: "addr2", line: "45 Logistics Way", meta: "Austin, TX 78701", isDefault: false }
+      ];
+      saveAddressesToStorage();
+    }
+    renderAddressList();
+  }
+
+  function saveAddressesToStorage() {
+    localStorage.setItem("delivra_addresses", JSON.stringify(addresses));
+  }
+
+  function renderAddressList() {
+    const container = document.getElementById("addressListContainer");
+    if (!container) return;
+    if (addresses.length === 0) {
+      container.innerHTML = `<div style="padding: 24px; text-align:center; color:var(--muted); font-size:13px;">✨ No saved addresses. Add one for faster deliveries.</div>`;
+      return;
+    }
+    container.innerHTML = addresses.map(addr => `
+      <div class="address-item ${addr.isDefault ? 'default-highlight' : ''}" data-id="${addr.id}">
+        <div class="address-line">${escapeHtml(addr.line)}</div>
+        ${addr.meta ? `<div style="font-size:12px; color:var(--muted); margin-top: 4px;">${escapeHtml(addr.meta)}</div>` : ''}
+        <div class="address-meta">
+          ${addr.isDefault ? '<span class="default-badge">Default</span>' : '<span></span>'}
+          <div class="address-actions">
+            ${!addr.isDefault ? `<span class="set-default" data-id="${addr.id}" onclick="setAsDefault('${addr.id}')">Set default</span>` : ''}
+            <span class="edit-addr" onclick="editAddress('${addr.id}')">Edit</span>
+            <span class="delete-addr" onclick="deleteAddress('${addr.id}')">Delete</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) { return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+
+  window.setAsDefault = function(id) {
+    addresses = addresses.map(addr => ({ ...addr, isDefault: addr.id === id }));
+    saveAddressesToStorage();
+    renderAddressList();
+    showToast("Default address updated");
+  };
+
+  window.deleteAddress = function(id) {
+    const addrToDelete = addresses.find(a => a.id === id);
+    if (addrToDelete && addrToDelete.isDefault && addresses.length > 1) {
+      alert("Cannot delete default address. Set another as default first.");
+      return;
+    }
+    if (addresses.length === 1) {
+      alert("You need at least one saved address. Add a new one before deleting.");
+      return;
+    }
+    addresses = addresses.filter(addr => addr.id !== id);
+    saveAddressesToStorage();
+    renderAddressList();
+    hideAddressForm();
+    showToast("Address removed");
+  };
+
+  window.editAddress = function(id) {
+    const addr = addresses.find(a => a.id === id);
+    if (!addr) return;
+    editModeId = id;
+    document.getElementById("addressLineInput").value = addr.line;
+    document.getElementById("addressMetaInput").value = addr.meta || "";
+    document.getElementById("addressForm").style.display = "block";
+    document.getElementById("saveAddressBtn").textContent = "Update Address";
+    document.getElementById("showAddAddressBtn").style.display = "none";
+  };
+
+  function hideAddressForm() {
+    document.getElementById("addressForm").style.display = "none";
+    document.getElementById("addressLineInput").value = "";
+    document.getElementById("addressMetaInput").value = "";
+    editModeId = null;
+    document.getElementById("saveAddressBtn").textContent = "Save";
+    document.getElementById("showAddAddressBtn").style.display = "block";
+  }
+
+  function saveAddressFromForm() {
+    const line = document.getElementById("addressLineInput").value.trim();
+    if (!line) { alert("Please enter an address line."); return; }
+    const meta = document.getElementById("addressMetaInput").value.trim();
+    if (editModeId) {
+      const index = addresses.findIndex(a => a.id === editModeId);
+      if (index !== -1) {
+        addresses[index] = { ...addresses[index], line, meta };
+        saveAddressesToStorage();
+        renderAddressList();
+        showToast("Address updated");
+      }
+    } else {
+      const newId = "addr_" + Date.now() + "_" + Math.random().toString(36).substr(2, 6);
+      let newDefault = addresses.length === 0 ? true : false;
+      addresses.push({ id: newId, line, meta, isDefault: newDefault });
+      saveAddressesToStorage();
+      renderAddressList();
+      showToast("New address added");
+    }
+    hideAddressForm();
+  }
+
+  function showToast(msg) {
+    let toast = document.createElement("div");
+    toast.innerText = msg;
+    toast.style.position = "fixed";
+    toast.style.bottom = "30px";
+    toast.style.left = "50%";
+    toast.style.transform = "translateX(-50%)";
+    toast.style.backgroundColor = "var(--sidebar)";
+    toast.style.color = "white";
+    toast.style.padding = "10px 20px";
+    toast.style.borderRadius = "40px";
+    toast.style.fontSize = "13px";
+    toast.style.zIndex = "1000";
+    toast.style.fontWeight = "500";
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+  }
+
+  /* --- Profile + Toggles + Dark mode (enhanced) --- */
+  function saveProfile() {
+    const nameVal = document.getElementById("name").value.trim() || "Admin";
+    const emailVal = document.getElementById("email").value.trim() || "admin@delivra.com";
+    localStorage.setItem("name", nameVal);
+    localStorage.setItem("email", emailVal);
+    document.getElementById("profileNameDisplay").innerText = nameVal;
+    document.getElementById("profileEmailDisplay").innerText = emailVal;
+    const initial = nameVal.charAt(0).toUpperCase();
+    document.querySelectorAll(".avatar, .avatar-sm, .avatar-lg").forEach(el => {
+      if (el.innerText.length <= 2) el.innerText = initial;
+    });
+    alert("Profile updated successfully!");
+  }
+
+  // NEW: Reset ONLY preferences (dark mode, notifs) — keeps profile and addresses fully intact
+  window.resetPreferencesOnly = function() {
+    if (confirm("Reset all preferences (dark mode, email notifications, parcel updates) only? Your profile info and saved addresses will stay unchanged.")) {
+      localStorage.removeItem("emailNotif");
+      localStorage.removeItem("parcelNotif");
+      localStorage.removeItem("darkMode");
+      document.body.classList.remove("dark");
+      const darkToggle = document.getElementById("darkMode");
+      if (darkToggle) darkToggle.classList.remove("active");
+      const emailToggle = document.getElementById("emailNotif");
+      if (emailToggle) emailToggle.classList.remove("active");
+      const parcelToggle = document.getElementById("parcelNotif");
+      if (parcelToggle) parcelToggle.classList.remove("active");
+      showToast("Preferences reset to default (dark mode off, notifications off)");
+    }
+  };
+
+  // (old resetSettings removed to avoid confusion, we keep only resetPreferencesOnly)
+  function exportSettings() { /* optional stub not used but no action needed */ }
+
+  function restoreToggle(id) { const toggle = document.getElementById(id); if (toggle && localStorage.getItem(id) === "true") toggle.classList.add("active"); }
+  function toggleSetting(element, key) { element.classList.toggle("active"); localStorage.setItem(key, element.classList.contains("active")); }
+
+  window.logout = function() { if (confirm("Are you sure you want to logout?")) window.location.href = "index.html"; };
+
+  /* DOM ready */
+  document.addEventListener("DOMContentLoaded", () => {
+    const savedName = localStorage.getItem("name") || "Admin";
+    const savedEmail = localStorage.getItem("email") || "admin@delivra.com";
+    document.getElementById("name").value = savedName;
+    document.getElementById("email").value = savedEmail;
+    document.getElementById("profileNameDisplay").innerText = savedName;
+    document.getElementById("profileEmailDisplay").innerText = savedEmail;
+    const initialChar = savedName.charAt(0).toUpperCase();
+    document.querySelectorAll(".avatar, .avatar-sm, .avatar-lg").forEach(el => { if (el.innerText.length <= 2) el.innerText = initialChar; });
+    
+    restoreToggle("emailNotif");
+    restoreToggle("parcelNotif");
+    if (localStorage.getItem("darkMode") === "true") { document.body.classList.add("dark"); document.getElementById("darkMode")?.classList.add("active"); }
+    
+    loadAddressesFromStorage();
+    
+    const emailNotifToggle = document.getElementById("emailNotif");
+    const parcelNotifToggle = document.getElementById("parcelNotif");
+    const darkModeToggle = document.getElementById("darkMode");
+    if (emailNotifToggle) emailNotifToggle.addEventListener("click", function() { toggleSetting(this, "emailNotif"); });
+    if (parcelNotifToggle) parcelNotifToggle.addEventListener("click", function() { toggleSetting(this, "parcelNotif"); });
+    if (darkModeToggle) darkModeToggle.addEventListener("click", function() { document.body.classList.toggle("dark"); const enabled = document.body.classList.contains("dark"); localStorage.setItem("darkMode", enabled); this.classList.toggle("active"); });
+    
+    document.getElementById("showAddAddressBtn").addEventListener("click", () => { editModeId = null; document.getElementById("addressLineInput").value = ""; document.getElementById("addressMetaInput").value = ""; document.getElementById("addressForm").style.display = "block"; document.getElementById("saveAddressBtn").textContent = "Save Address"; document.getElementById("showAddAddressBtn").style.display = "none"; });
+    document.getElementById("saveAddressBtn").addEventListener("click", saveAddressFromForm);
+    document.getElementById("cancelAddressBtn").addEventListener("click", hideAddressForm);
+  });
+</script>
+</body>
+</html>
