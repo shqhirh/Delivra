@@ -72,6 +72,7 @@ The following technologies were used in this project:
 - DM Sans
 - DM Mono
 - Web Storage API (localStorage) — (Used to store user settings, profile data, and addresses in the browser)
+  
 
 Summary
 
